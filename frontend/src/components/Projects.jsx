@@ -687,7 +687,7 @@ const Projects = () => {
               Instagram page
             </p>
             <a
-              href="https://instagram.com/yourusername"
+              href="https://www.instagram.com/photographers_odyssey"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105"
