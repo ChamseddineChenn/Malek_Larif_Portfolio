@@ -19,7 +19,7 @@ import photography_img_11 from './Photography11.jpg';
 import photography_img_12 from './Photography12.jpg';
 import unitiwall_img_1 from './Unitiwall_img_1.jpeg';
 import unitiwall_img_2 from './Unitiwall_img_2.jpeg';
-import unitiwall_img_3 from './unitiwall_img_3.jpeg';
+import unitiwall_img_3 from './Unitiwall_img_3.jpeg';
 import unitiwall_img_4 from './Unitiwall_img_4.jpeg';
 import unitiwall_img_5 from './Unitiwall_img_5.jpeg';
 import unitiwall_img_6 from './Unitiwall_img_6.jpeg';
