@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { assets } from '../assets/assets';
+import './Navbar.css';
 
 const Navbar = ({ onItemSelect, selectedItem, wheelSpeed, isAccelerating }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -132,39 +133,6 @@ const Navbar = ({ onItemSelect, selectedItem, wheelSpeed, isAccelerating }) => {
           );
         })}
       </motion.div>
-
-      {/* Custom styles for border glow effect */}
-      <style jsx>{`
-        .border-glow-trigger {
-          animation: border-glow-pulse 0.8s ease-out forwards;
-        }
-
-        .border-glow-selected {
-          border-color: rgba(255, 255, 255, 0.9) !important;
-          box-shadow: 0 0 15px rgba(255, 255, 255, 0.8),
-            0 0 30px rgba(255, 255, 255, 0.4),
-            inset 0 0 15px rgba(255, 255, 255, 0.3);
-          animation: none;
-        }
-
-        @keyframes border-glow-pulse {
-          0% {
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 0px rgba(255, 255, 255, 0),
-              inset 0 0 0px rgba(255, 255, 255, 0);
-          }
-          50% {
-            border-color: rgba(255, 255, 255, 0.7);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-              inset 0 0 5px rgba(255, 255, 255, 0.2);
-          }
-          100% {
-            border-color: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8),
-              inset 0 0 10px rgba(255, 255, 255, 0.3);
-          }
-        }
-      `}</style>
     </div>
   );
 };
