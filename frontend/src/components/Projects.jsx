@@ -1,122 +1,330 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { assets } from '../assets/assets';
 
 const Projects = () => {
   const [activeTab, setActiveTab] = useState('architecture');
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedMedia, setSelectedMedia] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadedImages, setLoadedImages] = useState(new Set());
 
-  // Sample projects data for each category
-  const projectsData = {
-    architecture: [
+  // Memoized projects data
+  const projectsData = useMemo(
+    () => ({
+      architecture: [
+        {
+          id: 1,
+          title: 'Eco-Residential Complex',
+          description:
+            'Sustainable housing project with integrated green spaces and renewable energy systems.',
+          year: '2023',
+          location: 'Tunis, Tunisia',
+        },
+        {
+          id: 2,
+          title: 'Luxury Villa Series',
+          description:
+            'Collection of high-end residential properties with custom architectural details.',
+          year: '2021',
+          location: 'Hammamet, Tunisia',
+        },
+      ],
+      managed: [
+        {
+          id: 3,
+          title: 'Prefabricated Curtain Wall Systems',
+          description:
+            'Advanced engineering and stress testing of unitized wall panels.',
+          year: '2022 – Present',
+          location: 'Mississauga, ON, Canada',
+        },
+      ],
+      photography: [{}],
+    }),
+    []
+  );
+
+  // Memoized photography images
+  const photographyImages = useMemo(
+    () => [
       {
         id: 1,
-        title: 'Eco-Residential Complex',
-        description:
-          'Sustainable housing project with integrated green spaces and renewable energy systems.',
-        year: '2023',
-        location: 'Tunis, Tunisia',
+        src: assets.photography_img_1,
+        title: 'Urban Landscape',
+        description: 'City architecture and urban planning',
       },
       {
         id: 2,
-        title: 'Luxury Villa Series',
-        description:
-          'Collection of high-end residential properties with custom architectural details.',
-        year: '2021',
-        location: 'Hammamet, Tunisia',
+        src: assets.photography_img_2,
+        title: 'Architectural Detail',
+        description: 'Detailed architectural elements',
       },
       {
         id: 3,
-        title: 'Urban Renewal Project',
-        description:
-          'Rehabilitation of historic district with contemporary interventions respecting traditional architecture.',
-        year: '2020',
-        location: 'Tunis, Tunisia',
+        src: assets.photography_img_3,
+        title: 'Cityscape',
+        description: 'Urban skyline and city views',
       },
-    ],
-    managed: [
       {
         id: 4,
-        title: 'Commercial Hub Design',
-        description:
-          'Modern commercial center with innovative spatial organization and facade treatment.',
-        year: '2022',
-        location: 'Paris, France',
+        src: assets.photography_img_4,
+        title: 'Modern Structure',
+        description: 'Contemporary architectural design',
       },
       {
         id: 5,
-        title: 'Office Tower',
-        description:
-          '25-story commercial tower with innovative structural design and energy-efficient systems.',
-        year: '2021',
-        location: 'Montreal, Canada',
+        src: assets.photography_img_5,
+        title: 'Historical Building',
+        description: 'Heritage and historical architecture',
       },
-    ],
-    photography: [
       {
         id: 6,
-        title: 'Architectural Photography',
-        description:
-          'Professional photography showcasing architectural details and spatial relationships.',
-        year: '2023',
-        location: 'Various Locations',
+        src: assets.photography_img_6,
+        title: 'Interior Design',
+        description: 'Architectural interior spaces',
       },
-    ],
-  };
-
-  // Optimized photography images with lazy loading and performance fixes
-  const photographyImages = useMemo(
-    () => [
-      { id: 1, src: assets.photography_img_1, title: 'Urban Landscape' },
-      { id: 2, src: assets.photography_img_2, title: 'Architectural Detail' },
-      { id: 3, src: assets.photography_img_3, title: 'Cityscape' },
-      { id: 4, src: assets.photography_img_4, title: 'Modern Structure' },
-      { id: 5, src: assets.photography_img_5, title: 'Historical Building' },
-      { id: 6, src: assets.photography_img_6, title: 'Interior Design' },
-      { id: 7, src: assets.photography_img_7, title: 'Facade Study' },
-      { id: 8, src: assets.photography_img_8, title: 'Urban Geometry' },
-      { id: 9, src: assets.photography_img_9, title: 'Light and Shadow' },
-      { id: 10, src: assets.photography_img_10, title: 'Structural Form' },
+      {
+        id: 7,
+        src: assets.photography_img_7,
+        title: 'Facade Study',
+        description: 'Building exterior and facades',
+      },
+      {
+        id: 8,
+        src: assets.photography_img_8,
+        title: 'Urban Geometry',
+        description: 'Geometric patterns in urban design',
+      },
+      {
+        id: 9,
+        src: assets.photography_img_9,
+        title: 'Light and Shadow',
+        description: 'Play of light in architecture',
+      },
+      {
+        id: 10,
+        src: assets.photography_img_10,
+        title: 'Structural Form',
+        description: 'Architectural forms and structures',
+      },
       {
         id: 11,
         src: assets.photography_img_11,
         title: 'Environmental Integration',
+        description: 'Buildings in natural settings',
       },
-      { id: 12, src: assets.photography_img_12, title: 'Spatial Composition' },
+      {
+        id: 12,
+        src: assets.photography_img_12,
+        title: 'Spatial Composition',
+        description: 'Spatial relationships in design',
+      },
+    ],
+    []
+  );
+
+  // Memoized unitiwall media
+  const unitiwallMedia = useMemo(
+    () => ({
+      videos: [
+        {
+          id: 1,
+          src: assets.unitiwall_video_1,
+          title: 'Structural Load Testing',
+          description:
+            'Stress testing of curtain wall components under extreme conditions',
+        },
+        {
+          id: 2,
+          src: assets.unitiwall_video_2,
+          title: 'Assembly Process',
+          description: 'Precision assembly of prefabricated wall panels',
+        },
+        {
+          id: 3,
+          src: assets.unitiwall_video_3,
+          title: 'Quality Control',
+          description: 'Final inspection and quality assurance procedures',
+        },
+      ],
+      images: [
+        {
+          id: 1,
+          src: assets.unitiwall_img_1,
+          title: 'Thermal Plenum Design',
+          description: 'Advanced R26.8 insulation system',
+        },
+        {
+          id: 2,
+          src: assets.unitiwall_img_2,
+          title: 'Laboratory Testing',
+          description: 'Rigorous mock-up testing and validation',
+        },
+        {
+          id: 3,
+          src: assets.unitiwall_img_3,
+          title: 'Curtain Wall Assembly',
+          description: 'Fully unitized prefabricated system',
+        },
+        {
+          id: 4,
+          src: assets.unitiwall_img_4,
+          title: 'Structural Components',
+          description: 'High-precision engineering details',
+        },
+        {
+          id: 5,
+          src: assets.unitiwall_img_5,
+          title: 'Installation Process',
+          description: '80% faster on-site installation',
+        },
+        {
+          id: 6,
+          src: assets.unitiwall_img_6,
+          title: 'Material Innovation',
+          description: 'Advanced composite materials',
+        },
+        {
+          id: 7,
+          src: assets.unitiwall_img_7,
+          title: 'Project Documentation',
+          description: 'Comprehensive technical specifications',
+        },
+      ],
+    }),
+    []
+  );
+
+  // Memoized tabs configuration
+  const tabs = useMemo(
+    () => [
+      { id: 'architecture', label: 'Architecture' },
+      { id: 'managed', label: 'Managed Projects' },
+      { id: 'photography', label: 'Photography' },
     ],
     []
   );
 
   const currentProjects = projectsData[activeTab];
 
-  const openPhotoModal = (photo) => {
-    setSelectedPhoto(photo);
-    setIsModalOpen(true);
-    // Don't disable body scroll - it causes performance issues
-  };
+  // Get current 2 photos for display
+  const getCurrentPhotos = useCallback(() => {
+    const firstIndex = currentPhotoIndex;
+    const secondIndex = (currentPhotoIndex + 1) % photographyImages.length;
+    return [photographyImages[firstIndex], photographyImages[secondIndex]];
+  }, [currentPhotoIndex, photographyImages]);
 
-  const closePhotoModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => setSelectedPhoto(null), 300); // Delay cleanup until after animation
-  };
+  // Fixed image loading handler
+  const handleImageLoad = useCallback((imageId) => {
+    setLoadedImages((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(imageId);
+      return newSet;
+    });
+  }, []);
 
-  const handleModalClick = (e) => {
-    if (e.target === e.currentTarget || e.target.closest('.modal-close')) {
-      closePhotoModal();
+  // Check if current photos are loaded
+  const checkCurrentPhotosLoaded = useCallback(() => {
+    const currentPhotos = getCurrentPhotos();
+    return currentPhotos.every((photo) => loadedImages.has(photo.id));
+  }, [getCurrentPhotos, loadedImages]);
+
+  // Carousel navigation
+  const nextPhoto = useCallback(() => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setCurrentPhotoIndex((prevIndex) => {
+      const newIndex =
+        prevIndex + 2 >= photographyImages.length ? 0 : prevIndex + 2;
+      return newIndex;
+    });
+  }, [isLoading, photographyImages.length]);
+
+  const prevPhoto = useCallback(() => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setCurrentPhotoIndex((prevIndex) => {
+      const newIndex =
+        prevIndex - 2 < 0 ? photographyImages.length - 2 : prevIndex - 2;
+      return newIndex;
+    });
+  }, [isLoading, photographyImages.length]);
+
+  // Simple preload function
+  const preloadImage = useCallback(
+    (src, id) => {
+      if (!loadedImages.has(id)) {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => handleImageLoad(id);
+        img.onerror = () => handleImageLoad(id); // Fallback if image fails
+      }
+    },
+    [loadedImages, handleImageLoad]
+  );
+
+  // Preload current images when index changes
+  useEffect(() => {
+    const currentPhotos = getCurrentPhotos();
+
+    // Preload current images
+    currentPhotos.forEach((photo) => {
+      preloadImage(photo.src, photo.id);
+    });
+
+    // Check if current images are already loaded
+    if (checkCurrentPhotosLoaded()) {
+      const timer = setTimeout(() => setIsLoading(false), 300);
+      return () => clearTimeout(timer);
     }
+  }, [
+    currentPhotoIndex,
+    getCurrentPhotos,
+    preloadImage,
+    checkCurrentPhotosLoaded,
+  ]);
+
+  // Monitor loaded images and update loading state
+  useEffect(() => {
+    if (isLoading && checkCurrentPhotosLoaded()) {
+      const timer = setTimeout(() => setIsLoading(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [loadedImages, isLoading, checkCurrentPhotosLoaded]);
+
+  // Preload next images
+  useEffect(() => {
+    const nextIndex = (currentPhotoIndex + 2) % photographyImages.length;
+    const nextPhotos = [
+      photographyImages[nextIndex],
+      photographyImages[(nextIndex + 1) % photographyImages.length],
+    ];
+
+    nextPhotos.forEach((photo) => {
+      preloadImage(photo.src, photo.id);
+    });
+  }, [currentPhotoIndex, photographyImages, preloadImage]);
+
+  const openMediaModal = (media) => {
+    setSelectedMedia(media);
+    setIsModalOpen(true);
   };
 
-  // Simple hover handler without heavy animations
-  const handleImageHover = (e) => {
-    // Lightweight hover effect
-    e.currentTarget.style.transform = 'scale(1.02)';
+  const closeMediaModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setSelectedMedia(null), 300);
   };
 
-  const handleImageLeave = (e) => {
-    e.currentTarget.style.transform = 'scale(1)';
-  };
+  // Reset when tab changes
+  useEffect(() => {
+    if (activeTab === 'photography') {
+      setLoadedImages(new Set());
+      setIsLoading(true);
+    }
+  }, [activeTab]);
 
   return (
     <div className="text-white p-8 max-w-6xl mx-auto">
@@ -130,20 +338,11 @@ const Projects = () => {
       </motion.h2>
 
       {/* Three Section Tabs */}
-      <motion.div
-        className="flex flex-wrap justify-center gap-4 mb-12"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-      >
-        {[
-          { id: 'architecture', label: 'Architecture' },
-          { id: 'managed', label: 'Managed Projects' },
-          { id: 'photography', label: 'Photography' },
-        ].map((tab) => (
+      <div className="flex flex-wrap justify-center gap-4 mb-12">
+        {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`px-6 py-3 rounded-lg text-lg font-medium transition-all duration-300 border-2 ${
+            className={`px-6 py-3 rounded-lg text-lg font-medium transition-colors duration-200 border-2 ${
               activeTab === tab.id
                 ? 'bg-white text-black border-white'
                 : 'bg-transparent text-white border-white/30 hover:border-white/60'
@@ -153,31 +352,18 @@ const Projects = () => {
             {tab.label}
           </button>
         ))}
-      </motion.div>
+      </div>
 
       {/* Content Sections */}
-      {activeTab !== 'photography' ? (
-        /* Architecture and Managed Projects Layout */
+      {activeTab === 'architecture' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {currentProjects.map((project, index) => (
-            <motion.div
+          {currentProjects.map((project) => (
+            <div
               key={project.id}
-              className="bg-black/30 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 hover:border-white/30 transition-all duration-300 group hover:transform hover:scale-105"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="bg-black/30 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 hover:border-white/30 transition-all duration-200"
             >
-              <div className="h-48 bg-gradient-to-br from-gray-800 to-black overflow-hidden relative">
-                <div className="w-full h-full bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
-                  <span className="text-5xl">
-                    {activeTab === 'architecture' ? '🏛️' : '📊'}
-                  </span>
-                </div>
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <button className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                    View Details
-                  </button>
-                </div>
+              <div className="h-48 bg-gradient-to-br from-gray-800 to-black flex items-center justify-center">
+                <span className="text-5xl">🏛️</span>
               </div>
               <div className="p-6">
                 <div className="flex justify-between items-start mb-3">
@@ -186,23 +372,143 @@ const Projects = () => {
                     {project.year}
                   </span>
                 </div>
-                <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+                <p className="text-gray-300 text-sm mb-4">
                   {project.description}
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-white/60">
                     📍 {project.location}
                   </span>
-                  <span className="text-xs font-medium text-white/60 bg-white/10 px-3 py-1 rounded-full capitalize">
-                    {activeTab.replace('_', ' ')}
-                  </span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
+      ) : activeTab === 'managed' ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Project Header */}
+          <div className="text-center mb-12">
+            <motion.h3
+              className="text-3xl font-semibold mb-4 text-white/90"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              Prefabricated Curtain Wall Engineering & Testing
+            </motion.h3>
+            <motion.p
+              className="text-white/70 max-w-4xl mx-auto leading-relaxed text-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              As Product Innovation Manager at Unitiwall, Malek leads the design
+              and stress testing of revolutionary prefabricated curtain wall
+              systems. His work focuses on developing high-performance thermal
+              plenum panels achieving R26.8 values and creating fully unitized
+              assemblies that reduce installation time by 80% while maintaining
+              structural integrity under extreme conditions.
+            </motion.p>
+            <motion.div
+              className="mt-6 flex justify-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <span className="text-cyan-300 text-sm bg-cyan-400/10 px-3 py-1 rounded-full">
+                Structural Engineering
+              </span>
+              <span className="text-cyan-300 text-sm bg-cyan-400/10 px-3 py-1 rounded-full">
+                Thermal Performance
+              </span>
+              <span className="text-cyan-300 text-sm bg-cyan-400/10 px-3 py-1 rounded-full">
+                Prefabrication
+              </span>
+            </motion.div>
+          </div>
+
+          {/* Videos Section */}
+          <motion.section
+            className="mb-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <h4 className="text-2xl font-semibold mb-6 text-white/80 border-b border-white/10 pb-2">
+              Testing & Process Documentation
+            </h4>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {unitiwallMedia.videos.map((video) => (
+                <motion.div
+                  key={video.id}
+                  className="bg-black/20 rounded-lg overflow-hidden border border-white/10"
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="relative aspect-[9/16] bg-black">
+                    <video
+                      src={video.src}
+                      controls
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h5 className="font-semibold text-white/90 mb-2">
+                      {video.title}
+                    </h5>
+                    <p className="text-gray-300 text-sm">{video.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Images Section */}
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <h4 className="text-2xl font-semibold mb-6 text-white/80 border-b border-white/10 pb-2">
+              Engineering Details & Components
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {unitiwallMedia.images.map((image, index) => (
+                <motion.div
+                  key={image.id}
+                  className="aspect-[4/3] overflow-hidden rounded-lg cursor-pointer bg-gray-900 relative group"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 + index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => openMediaModal(image)}
+                >
+                  <img
+                    src={image.src}
+                    alt={image.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end">
+                    <div className="p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <h5 className="text-white font-semibold">
+                        {image.title}
+                      </h5>
+                      <p className="text-gray-300 text-sm">
+                        {image.description}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        </motion.div>
       ) : (
-        /* Photography Section Layout - OPTIMIZED */
+        /* Photography Section */
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -231,31 +537,128 @@ const Projects = () => {
             </motion.p>
           </div>
 
-          {/* OPTIMIZED Photography Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-12">
-            {photographyImages.map((photo) => (
-              <div
-                key={photo.id}
-                className="aspect-square overflow-hidden rounded-lg cursor-pointer relative bg-gray-800"
-                onClick={() => openPhotoModal(photo)}
+          {/* Photography Carousel */}
+          <div className="mb-12">
+            <div className="flex items-center justify-center gap-4 mb-8">
+              {/* Left Arrow */}
+              <button
+                onClick={prevPhoto}
+                disabled={isLoading}
+                className={`p-3 rounded-full transition-colors duration-200 ${
+                  isLoading
+                    ? 'bg-white/5 cursor-not-allowed'
+                    : 'bg-white/10 hover:bg-white/20'
+                }`}
               >
-                <img
-                  src={photo.src}
-                  alt={photo.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-200"
-                  onMouseEnter={handleImageHover}
-                  onMouseLeave={handleImageLeave}
-                />
-                <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
-                  <div className="opacity-0 hover:opacity-100 transition-opacity duration-200">
-                    <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
-                      View
-                    </span>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+
+              {/* Current Photos Display */}
+              <div className="flex gap-6 relative min-h-[400px] items-center">
+                {isLoading ? (
+                  // Loading Skeleton
+                  <div className="flex gap-6">
+                    {[1, 2].map((index) => (
+                      <div
+                        key={index}
+                        className="aspect-[4/3] w-full min-w-[500px] max-w-md bg-gray-800 rounded-lg animate-pulse flex items-center justify-center"
+                      >
+                        <div className="w-12 h-12 border-4 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  // Loaded Images
+                  getCurrentPhotos().map((photo, index) => (
+                    <motion.div
+                      key={`${photo.id}-${currentPhotoIndex}`}
+                      className="aspect-[4/3] w-full max-w-md min-w-[500px] overflow-hidden rounded-lg cursor-pointer bg-gray-900 relative group"
+                      initial={{ opacity: 0, x: index === 0 ? -20 : 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 2.5, ease: 'easeOut' }}
+                      whileHover={{ scale: 1.02 }}
+                      onClick={() => openMediaModal(photo)}
+                    >
+                      <motion.img
+                        src={photo.src}
+                        alt={photo.title}
+                        className="w-full h-full object-cover"
+                        initial={{ scale: 1.1 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.4 }}
+                        onLoad={() => handleImageLoad(photo.id)}
+                        onError={() => handleImageLoad(photo.id)}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end">
+                        <div className="p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <h5 className="text-white font-semibold">
+                            {photo.title}
+                          </h5>
+                          <p className="text-gray-300 text-sm">
+                            {photo.description}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
               </div>
-            ))}
+
+              {/* Right Arrow */}
+              <button
+                onClick={nextPhoto}
+                disabled={isLoading}
+                className={`p-3 rounded-full transition-colors duration-200 ${
+                  isLoading
+                    ? 'bg-white/5 cursor-not-allowed'
+                    : 'bg-white/10 hover:bg-white/20'
+                }`}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Carousel Indicators */}
+            <div className="flex justify-center gap-2 mt-6">
+              {Array.from({
+                length: Math.ceil(photographyImages.length / 2),
+              }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => !isLoading && setCurrentPhotoIndex(index * 2)}
+                  disabled={isLoading}
+                  className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                    currentPhotoIndex === index * 2
+                      ? 'bg-white'
+                      : 'bg-white/30 hover:bg-white/50'
+                  } ${isLoading ? 'cursor-not-allowed' : ''}`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Instagram Section */}
@@ -298,36 +701,19 @@ const Projects = () => {
         </motion.div>
       )}
 
-      {/* Empty State for Architecture/Managed Projects */}
-      {activeTab !== 'photography' && currentProjects.length === 0 && (
-        <motion.div
-          className="text-center py-12"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="text-6xl mb-4">📁</div>
-          <h3 className="text-2xl font-semibold mb-2">No Projects Yet</h3>
-          <p className="text-gray-400">
-            Projects in this category will be added soon.
-          </p>
-        </motion.div>
-      )}
-
-      {/* OPTIMIZED Photo Viewer Modal */}
+      {/* Media Modal */}
       <AnimatePresence>
-        {isModalOpen && selectedPhoto && (
+        {isModalOpen && selectedMedia && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={handleModalClick}
+            onClick={closeMediaModal}
           >
-            {/* Close Button */}
             <button
-              className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors z-10 modal-close bg-black/50 rounded-full p-2"
-              onClick={closePhotoModal}
+              className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2"
+              onClick={closeMediaModal}
             >
               <svg
                 className="w-6 h-6"
@@ -344,29 +730,33 @@ const Projects = () => {
               </svg>
             </button>
 
-            {/* Photo Content - FIXED positioning */}
             <motion.div
-              className="relative max-w-[95vw] max-h-[95vh] flex items-center justify-center"
+              className="relative flex flex-col items-center justify-center max-w-[95vw] max-h-[95vh]"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'tween', duration: 0.3 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={selectedPhoto.src}
-                alt={selectedPhoto.title}
-                className="max-w-full max-h-full object-contain"
+                src={selectedMedia.src}
+                alt={selectedMedia.title}
+                className="max-w-full max-h-[85vh] object-contain"
                 style={{
                   width: 'auto',
                   height: 'auto',
                   maxWidth: 'min(95vw, 1200px)',
-                  maxHeight: 'min(95vh, 800px)',
+                  maxHeight: 'min(85vh, 800px)',
                 }}
               />
-              <div className="absolute bottom-4 left-4 right-4 bg-gradient-to-t from-black/80 to-transparent p-4 rounded">
-                <h3 className="text-white text-lg font-semibold">
-                  {selectedPhoto.title}
+
+              <div className="w-full max-w-4xl mt-4 bg-black/70 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <h3 className="text-white text-lg font-semibold mb-2">
+                  {selectedMedia.title}
                 </h3>
+                <p className="text-gray-300 text-sm">
+                  {selectedMedia.description}
+                </p>
               </div>
             </motion.div>
           </motion.div>
