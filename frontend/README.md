@@ -1,12 +1,21 @@
-# React + Vite
+# Malek Larif Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains the React frontend for the Malek Larif portfolio website.
 
-Currently, two official plugins are available:
+The application uses React 19, Vite, Tailwind CSS 4, Framer Motion, GSAP, Lenis, React Router, React Hook Form, and react-to-print.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Local development
 
-## Expanding the ESLint configuration
+```bash
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Build and lint
+
+```bash
+npm run build
+npm run lint
+```
+
+The site is configured for Vercel deployment. See the [repository README](../README.md) for the project overview.
